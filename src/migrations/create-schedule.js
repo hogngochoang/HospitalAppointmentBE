@@ -12,12 +12,6 @@ module.exports = {
       doctorId: {
         type: Sequelize.INTEGER
       },
-      currNum: {
-        type: Sequelize.INTEGER
-      },
-      maxNum: {
-        type: Sequelize.INTEGER
-      },
       date: {
         type: Sequelize.STRING
       },

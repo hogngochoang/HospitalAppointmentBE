@@ -71,7 +71,7 @@ let createSchedule = (data) => {
                 
                 let existing = await db.Schedule.findAll({
                     where: {doctorId: data.doctorId, date: data.date},
-                    attributes: ['timeType', 'date','doctorId', 'maxNum'],
+                    attributes: ['timeType', 'date','doctorId'],
                     raw: true
                 })
                 let toCreate = _.differenceWith(schedule, existing, (a,b) => {

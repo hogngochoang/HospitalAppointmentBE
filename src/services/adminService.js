@@ -172,7 +172,6 @@ let getTotalPatientForAdmin = (doctorId) => {
             // Tính ngày bắt đầu và ngày kết thúc của tuần từ date
             const startDate = moment().startOf('week').valueOf(); 
             const endDate = moment().endOf('week').valueOf();
-            console.log(startDate, endDate)
 
             // Truy vấn dữ liệu trong khoảng thời gian đã xác định
             let dataS3 = await db.History.findAll({
@@ -221,7 +220,6 @@ let getTotalPatientForAdmin = (doctorId) => {
             let key = 'patientId'
             let dataUniquePatientId = [...new Map(data.map(item =>
                 [item[key], item])).values()];
-            console.log(dataUniquePatientId)
             let groupedData = data.reduce((acc, curr) => {
                 const key = `${curr.doctorId}`;
                 if (!acc[key]) { 

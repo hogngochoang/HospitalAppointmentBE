@@ -19,7 +19,6 @@ let postBookingAppointment = (data) => {
                     errMessage: "Missing required params"
                 })
             }else{
-                let token = uuidv4();
                 let user = await db.Patient.findOne({
                     where:{
                         gender: data.selectedGender,
@@ -44,7 +43,6 @@ let postBookingAppointment = (data) => {
                             patientId: newUser.id,
                             date: data.date,
                             timeType:data.timeType,
-                            token: token
                         })
                         let {count, rows} = await db.confirmedBooking.findAndCountAll({
                             where:{
@@ -87,7 +85,6 @@ let postBookingAppointment = (data) => {
                             patientId: user.id,
                             date: data.date,
                             timeType:data.timeType,
-                            token: token
                         },
                         raw : true ,
                         nest : true
@@ -170,44 +167,44 @@ let postBookingAppointment = (data) => {
     })
 }
 
-let postVerifyBookingAppointment = (data) => {
-    return new Promise(async(resolve, reject) => {
-        try {
-            if(!data.token || !data.doctorId){
-                resolve({
-                    errCode: 1,
-                    errMessage: "Missing required params"
-                })
-            }else{
-                let appointment = await db.Booking.findOne({
-                    where: {
-                        doctorId: data.doctorId,
-                        token: data.token,
-                        statusId: 'S1'
-                    },
-                    raw: false
-                })
-                if(appointment){
-                    appointment.statusId = 'S2'
-                    await appointment.save();
-                    resolve({
-                        errCode: 0,
-                        errMessage: 'Update status succeed'
-                    })
-                }else{
-                    resolve({
-                        errCode: 2,
-                        errMessage: 'Appointment has been activated or not exist'
-                    })
-                }
-            }
-        } catch (e) {
-            reject(e)
-        }
-    })
-}
+// let postVerifyBookingAppointment = (data) => {
+//     return new Promise(async(resolve, reject) => {
+//         try {
+//             if(!data.token || !data.doctorId){
+//                 resolve({
+//                     errCode: 1,
+//                     errMessage: "Missing required params"
+//                 })
+//             }else{
+//                 let appointment = await db.Booking.findOne({
+//                     where: {
+//                         doctorId: data.doctorId,
+//                         token: data.token,
+//                         statusId: 'S1'
+//                     },
+//                     raw: false
+//                 })
+//                 if(appointment){
+//                     appointment.statusId = 'S2'
+//                     await appointment.save();
+//                     resolve({
+//                         errCode: 0,
+//                         errMessage: 'Update status succeed'
+//                     })
+//                 }else{
+//                     resolve({
+//                         errCode: 2,
+//                         errMessage: 'Appointment has been activated or not exist'
+//                     })
+//                 }
+//             }
+//         } catch (e) {
+//             reject(e)
+//         }
+//     })
+// }
 
 module.exports = {
     postBookingAppointment: postBookingAppointment, 
-    postVerifyBookingAppointment: postVerifyBookingAppointment
+    // postVerifyBookingAppointment: postVerifyBookingAppointment
 }

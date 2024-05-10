@@ -65,7 +65,6 @@ let updateBookingStatusConfirmed = (data) => {
                         patientId: appointment.patientId,
                         date: appointment.date,
                         timeType:appointment.timeType,
-                        token: appointment.token
                     })
                     await db.Booking.destroy({
                         where:{
@@ -145,15 +144,78 @@ let deleteBooking = (id) => {
 
         resolve({
             errCode: 0,
-            errMessage: "User is deleted"
+            errMessage: "Schedule is deleted"
         })
 
     })
 } 
 
+let getFullScheduleForStaff = (doctorId, date) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if(!doctorId || !date){
+                resolve({
+                    errCode: 1,
+                    errMessage: "Missing required params"
+                })
+            }else{
+                
+                let {count,data} = await db.confirmedBooking.findAndCountAll({
+                    where:{
+                        doctorId: doctorId,
+                        date: date
+                    },
+                    include: [
+                        {
+                            model: db.Patient, as:'patientDataS2',attributes: ['email', 'gender', 'fullName','address'],
+                            include: [
+                                {model: db.Allcodes, as: 'genderData', attributes: ['valueVI','valueEN']}
+                            ],
+                        },
+                        {
+                            model: db.Allcodes, as:'timeTypeDataPatientS2',attributes: ['valueVI', 'valueEN'],
+                        }
+                    ],
+                    raw: true,
+                    nest: true
+                })
+                
+                    let groupedData = data.reduce((acc, curr) => {
+                        const key = `${curr.date}_${curr.doctorId}`;
+                        if (!acc[key] && count === 3) { 
+                            acc[key] = {
+                                    date: curr.date,
+                                    doctorId: curr.doctorId,
+                                    time: [],
+                                    dataTime: [],
+                            };
+                        }
+                        // Push time to the corresponding array
+                        acc[key].patientId.push(curr.timeType);
+                        acc[key].patientData.push(curr.timeTypeDataPatientS2);
+                        return acc;
+                    }, {});
+    
+                    // Convert groupedData object to an array of values
+                    groupedData = Object.values(groupedData);
+                    resolve({
+                        errCode: 0,
+                        data: groupedData
+                    })
+                
+                
+                
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     getListWaitingPatientForStaff: getListWaitingPatientForStaff,
     updateBookingStatusConfirmed: updateBookingStatusConfirmed,
     getListConfirmedPatientForStaff: getListConfirmedPatientForStaff,
-    deleteBooking: deleteBooking
+    deleteBooking: deleteBooking,
+    getFullScheduleForStaff: getFullScheduleForStaff
 }
